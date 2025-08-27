@@ -1,4 +1,5 @@
 const morgan = require('morgan')
+const Tour = require('./model/tourModel')
 const mongoose = require('mongoose');
 const dotenv = require('dotenv')
 const app = require('./app')
@@ -7,27 +8,13 @@ const DB = process.env.DATABASE.replace('<PASSWORD>',process.env.DATABASE_PASSWO
 mongoose.connect(DB,{
 }).then(()=>console.log("Database is connected")
 )
-const tourSchema =new mongoose.Schema({
-  name: {
-    type:String,
-    required:[true,'A tour must have a name'],
-    unique:true
-  },
-  price: {type:Number,
-    required:[true,'A tour must have a Price'],
-  },
-  rating: {
-    type:Number,
-    required:[true,'A tour must have a rating'],
-  },
-})
-const Tour = mongoose.model('Tour',tourSchema)
+
 const test_tour = new Tour({
   name:"The Forest Hike",
   price:497,
   rating:4.7
 })
-test_tour.save().catch(doc=>{console.log(doc)})
+
 
 if(process.env.NODE_ENV === 'development'){
   app.use(morgan('dev'))

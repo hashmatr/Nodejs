@@ -3,10 +3,10 @@ const express = require('express');
 const Router  = express.Router();
 const app = express()
 
-Router.param('id',tourController.checkID)
+// Router.param('id',tourController.checkID)
 Router.route('/').
 get(tourController.getAlltours).
-post(tourController.checkdata,tourController.createTour);
+post(tourController.createTour);
 Router
   .route('/:id')
   .delete(tourController.deleteTour)
