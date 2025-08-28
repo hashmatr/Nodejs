@@ -1,32 +1,22 @@
+const APIfeachers = require('./../utils/ApiFeachers')
 const Tour = require('./../model/tourModel');
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
 
 exports.getAlltours = async (req, res) => {
   try {
-  
-      const  queryObj = {...req.query};
-      const exculudedfields =  ["page","sort","limit","fields"]
-      exculudedfields.forEach(el=>delete queryObj[el])
-      let querystr = JSON.stringify(queryObj )
-     querystr =   querystr.replace(/\b(gte|gt|lt|lte)\b/g,match=>`$${match}`)
-     let query = Tour.find(JSON.parse(querystr))
-     if(req.query.sort){
-      const sortBy = req.query.sort.split(',').join(' ')
-      query = query.sort(sortBy)
-     }
-     else{
-      query = query.sort('-createdAt')
-     }
-     if(req.query.field){
-      const fields = req.query.field.split(',').join(' ')
-      query = query.select(fields)}
-      else{
-        query = query.select('-__v')
-      }
-
-
-     const tours = await query
+    const feachers = new APIfeachers(Tour.find(), req.query)
+      .filter()
+      .sorting()
+      .limitField()
+      .paginate();
+    const tours = await feachers.query;
     res.status(200).json({
-      status: 'success', 
+      status: 'success',
       result: tours.length,
       data: {
         tours,
@@ -64,7 +54,7 @@ exports.updateTour = async (req, res) => {
     res.status(200).json({
       status: 'success',
       data: {
-       tours
+        tours,
       },
     });
   } catch (err) {
@@ -74,17 +64,17 @@ exports.updateTour = async (req, res) => {
     });
   }
 };
-exports.deleteTour =async (req, res) => {
-  try{
-     const tours = await Tour.findByIdAndDelete(req.params.id)
-  res.status(204).json({
-    status: 'success',
-   data: {
-     tour: null,
-     },
-  })}
-  catch(err){
-      res.status(404).json({
+exports.deleteTour = async (req, res) => {
+  try {
+    const tours = await Tour.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success',
+      data: {
+        tour: null,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
       status: 'fail',
       message: err,
     });
